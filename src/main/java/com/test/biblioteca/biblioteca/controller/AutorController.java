@@ -4,43 +4,49 @@
  */
 package com.test.biblioteca.biblioteca.controller;
 
-import com.test.biblioteca.biblioteca.entity.Autor;
+
+
+import com.test.biblioteca.biblioteca.service.AutorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/autores")
 public class AutorController {
 
     @Autowired
-    private JdbcTemplate jdbcTemplate;
+    private AutorService autorService;
 
+    // Endpoint para insertar un autor
     @PostMapping("/crear")
-    public ResponseEntity<String> crearAutor(@RequestBody Autor autor) {
-        String sql = "CALL insertar_autor(?, ?)";
-        jdbcTemplate.update(sql, autor.getIdAutor(), autor.getNombreAutor());
+    public ResponseEntity<String> crearAutor(@RequestParam Long idAutor, @RequestParam String nombreAutor) {
+        autorService.insertarAutor(idAutor, nombreAutor);
         return ResponseEntity.ok("Autor creado exitosamente");
     }
 
+    // Endpoint para actualizar un autor
     @PutMapping("/actualizar/{id}")
-    public ResponseEntity<String> actualizarAutor(@PathVariable Long id, @RequestBody Autor autor) {
-        String sql = "CALL actualizar_autor(?, ?)";
-        jdbcTemplate.update(sql, id, autor.getNombreAutor());
+    public ResponseEntity<String> actualizarAutor(@PathVariable Long id, @RequestParam String nombreAutor) {
+        autorService.actualizarAutor(id, nombreAutor);
         return ResponseEntity.ok("Autor actualizado exitosamente");
     }
 
+    // Endpoint para eliminar un autor
     @DeleteMapping("/eliminar/{id}")
     public ResponseEntity<String> eliminarAutor(@PathVariable Long id) {
-        String sql = "CALL eliminar_autor(?)";
-        jdbcTemplate.update(sql, id);
+        autorService.eliminarAutor(id);
         return ResponseEntity.ok("Autor eliminado exitosamente");
     }
+
+    // Endpoint para consultar todos los autores
+    @GetMapping("/consultar")
+    public ResponseEntity<List<Map<String, Object>>> consultarAutores() {
+        List<Map<String, Object>> autores = autorService.consultarAutores();
+        return ResponseEntity.ok(autores);
+    }
 }
+
